@@ -1,0 +1,86 @@
+<html>
+    <body>
+        <meta charset="utf-8">
+
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.js"></script>
+
+        <!-- Create a div where the graph will take place -->
+        <div id="my_dataviz"></div>
+
+
+        <script>
+
+            function getFilteredData(data) {
+              var validYears = ['2017', '2018', '2019', '2020', '2021', '2022'];
+              var validTypes = ['adopted', 'actual'];
+              return data.filter(function(revenue) { return validYears.includes(revenue.year) && validTypes.includes(revenue.type); });
+            }
+
+            // set the dimensions and margins of the graph
+            var margin = {top: 10, right: 30, bottom: 30, left: 90},
+                width = 800 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+            
+            // append the svg object to the body of the page
+            var svg = d3.select("#my_dataviz")
+              .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+                .attr("transform",
+                      "translate(" + margin.left + "," + margin.top + ")");
+            
+            //Read the data
+            d3.csv("https://raw.githubusercontent.com/morgankenyon/d3Data/main/metro-memos-graph-data/arlingtonCompleteRevenue2016-2024.csv", function(data) {
+              
+              console.log(data);
+              var data = getFilteredData(data);
+              var sumstat = d3.nest()
+                .key(function(d) { return d.type})
+                .entries(data);
+
+              // Add X axis
+              var x = d3.scaleLinear()
+                .domain(d3.extent(data, function(d) { return d.year; }))
+                .range([0, width ]);
+              svg.append("g")
+                .attr("transform", "translate(0, " + height + ")")
+                .call(d3.axisBottom(x).ticks(6).tickFormat(function(d) {
+                  return d3.format(".0f")(d)
+                }));
+
+              // Add Y axis
+              var y = d3.scaleLinear()
+                .domain([200000000, d3.max(data, function(d) { return +d.total; })])
+                .range([height, 0]);
+              svg.append("g")
+                .call(d3.axisLeft(y).tickFormat(function(d) {
+                  return d3.format("$,.0f")(d)
+                }));
+
+              // color palette
+              var res = sumstat.map(function(d) { return d.key }) //list of group names
+              var color = d3.scaleOrdinal()
+                .domain(res)
+                .range(['#e41a1c','#377eb8','#4daf4a']);
+
+              svg.selectAll(".line")
+                .data(sumstat)
+                .enter()
+                .append("path")
+                  .attr("fill", "none")
+                  .attr("stroke", function(d) { return color(d.key) })
+                  .attr("stroke-width", 1.5)
+                  .attr("d", function(d){
+                    return d3.line()
+                      .x(function(d) { return x(d.year); })
+                      .y(function(d) { return y(+d.total); })
+                      (d.values)
+                  })
+            
+            })
+            
+        </script>
+    </body>
+</html>

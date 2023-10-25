@@ -7,7 +7,7 @@
 
         <!-- Create a div where the graph will take place -->
         <div id="my_dataviz"></div>
-
+        
         <script>
 
             // set the dimensions and margins of the graph
@@ -26,17 +26,17 @@
             
             //Read the data
             //d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/3_TwoNumOrdered_comma.csv",
-            d3.csv("https://raw.githubusercontent.com/morgankenyon/d3Data/main/arlingtonRevenue2016-2024.csv",
+            d3.csv("https://raw.githubusercontent.com/morgankenyon/d3Data/main/metro-memos-graph-data/arlingtonRevenue2016-2024.csv",
             
               // When reading the csv, I must format variables:
               function(d){
-                return { date : d3.timeParse("%Y")(d.year), value : d.property_taxes }
+                return { date : d3.timeParse("%Y")(d.fiscal_year), value : d.property_taxes }
               },
             
               // Now I can use this dataset:
               function(data) {
             
-                // Add X axis --> it is a date format
+                // Add X axis -- it is a date format
                 var x = d3.scaleTime()
                   .domain(d3.extent(data, function(d) { return d.date; }))
                   .range([ 0, width ]);
@@ -66,6 +66,6 @@
             
             })
             
-        </script>
+        </script> -->
     </body>
 </html>
